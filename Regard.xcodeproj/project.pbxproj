@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8DC6175F16854794009EF4AE /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 8DC6175E16854794009EF4AE /* Icon-72.png */; };
+		8DEA927F17B1230600E8340B /* js in Resources */ = {isa = PBXBuildFile; fileRef = 8DEA927E17B1230600E8340B /* js */; };
 		8DEDAAC615B1BEC60063027D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DEDAAC515B1BEC60063027D /* UIKit.framework */; };
 		8DEDAAC815B1BEC60063027D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DEDAAC715B1BEC60063027D /* Foundation.framework */; };
 		8DEDAACA15B1BEC60063027D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DEDAAC915B1BEC60063027D /* CoreGraphics.framework */; };
@@ -37,6 +38,7 @@
 
 /* Begin PBXFileReference section */
 		8DC6175E16854794009EF4AE /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
+		8DEA927E17B1230600E8340B /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = Resources/js; sourceTree = "<group>"; };
 		8DEDAAC115B1BEC60063027D /* Regard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Regard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DEDAAC515B1BEC60063027D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		8DEDAAC715B1BEC60063027D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -88,6 +90,7 @@
 		8DEA927D17AD075B00E8340B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8DEA927E17B1230600E8340B /* js */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 				8DEDAAD915B1BEC70063027D /* MainStoryboard_iPhone.storyboard in Resources */,
 				8DEDAADC15B1BEC70063027D /* MainStoryboard_iPad.storyboard in Resources */,
 				8DC6175F16854794009EF4AE /* Icon-72.png in Resources */,
+				8DEA927F17B1230600E8340B /* js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

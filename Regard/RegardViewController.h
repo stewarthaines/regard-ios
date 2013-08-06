@@ -9,8 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
-@interface RegardViewController : UIViewController <UIWebViewDelegate>
-
+@interface RegardViewController : UIViewController <UIWebViewDelegate, UIGestureRecognizerDelegate>
+{
+    BOOL injectedJavascript;
+}
 @property (nonatomic, strong) IBOutlet NSString *category;
 @property (nonatomic, strong) IBOutlet UILabel *titleLabel;
 @property (nonatomic, strong) IBOutlet UIImageView *albumImageView;

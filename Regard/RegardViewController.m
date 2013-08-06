@@ -40,11 +40,42 @@
     
     [musicPlayer beginGeneratingPlaybackNotifications];
     
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(pasteboardChangedNotification:)
+     name:UIPasteboardChangedNotification
+     object:[UIPasteboard generalPasteboard]];
+    
     //[self updateStateFromPlayer:musicPlayer];
     [self categoryChanged:nil];
     [self resultViewChanged:nil];
     
     self.resultWebView.delegate = self;
+/*
+    UILongPressGestureRecognizer *press = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(onLongPress:)];
+//    press.numberOfTapsRequired = 2;
+    press.delegate = self;
+ 
+    [self.resultWebView addGestureRecognizer:press];
+ */
+}
+
+- (void)pasteboardChangedNotification:(NSNotification*)notification {
+    //pasteboardChangeCount = [UIPasteboard generalPasteboard].changeCount;
+    UIPasteboard *gpBoard = [UIPasteboard generalPasteboard];
+    NSLog(@"%d", gpBoard.changeCount);
+    if ([[UIPasteboard generalPasteboard] containsPasteboardTypes:UIPasteboardTypeListString]) {
+        self.resultTextView.text = [gpBoard valueForPasteboardType:@"public.text"];
+    }
+}
+/*
+- (void)onLongPress:(id)sender
+{
+    NSLog(@"onLongPress()");
+}
+*/
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -54,15 +85,54 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    
+//    NSLog(@"webViewDidStartLoad: on thread: %@", [NSThread currentThread]);
+    injectedJavascript = NO;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 //    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateTextFromWebView:) object:webView];
-    [self performSelector:@selector(updateTextFromWebView:) withObject:webView afterDelay:0.3];
-//    [self updateTextFromWebView:webView];
+    // do this @selector delay so we minimize the number of times we inject the javascript
+    // it seems there are multiple thread that call didfinishload:
+//    NSLog(@"webViewDidFinishLoad: on thread: %@", [NSThread currentThread]);
+    
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(injectJavascript:) object:webView];
+//    [self performSelector:@selector(injectJavascript:) withObject:webView afterDelay:1];
+    //    [self updateTextFromWebView:webView];
+}
+
+- (void)injectJavascript:(UIWebView *)webView
+{
+    if (!injectedJavascript) {
+        NSError *err;
+        NSString *js = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"js/select" ofType:@"js"] encoding:NSStringEncodingConversionAllowLossy error:&err];
+        if (err) {
+            NSLog(@"%@", err);
+        } else {
+            injectedJavascript = YES;
+            [webView stringByEvaluatingJavaScriptFromString:js];
+            NSLog(@"injected javascript");
+        }
+    }
+}
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    // handle window.location changes...
+    if (navigationType == UIWebViewNavigationTypeLinkClicked) {
+            // legit link navigation
+        NSLog(@"%@", [request URL]);
+    } else if (navigationType == UIWebViewNavigationTypeOther) {
+        //NSLog(@"type other: %@", [request URL]);
+		if ([[[request URL] scheme] compare:@"regard"] == NSOrderedSame) {
+            // get notification of 'selectionchange' event from the dom
+			if ([[[request URL] host] compare:@"selectionchange"] == NSOrderedSame) {
+                NSLog(@"selectionchange event");
+            }
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (void)updateTextFromWebView:(UIWebView *)webView
@@ -112,6 +182,7 @@
 - (void)requestResultsForItem:(MPMediaItem *)item
 {
     NSString *urlString;
+    [self.resultWebView stopLoading];
     if ([self.category isEqualToString:@"lyrics"]) {
         NSString *artist = [[[[item valueForProperty:MPMediaItemPropertyArtist] lowercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""] stringByReplacingOccurrencesOfString:@"'" withString:@""];
         NSString *title = [[[[item valueForProperty:MPMediaItemPropertyTitle] lowercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""] stringByReplacingOccurrencesOfString:@"'" withString:@""];
@@ -126,6 +197,7 @@
         NSString *title = [[[[item valueForProperty:MPMediaItemPropertyTitle] lowercaseString] stringByReplacingOccurrencesOfString:@" " withString:@"_"] stringByReplacingOccurrencesOfString:@"'" withString:@""];
         NSString *artistIndex = [artist substringToIndex:1];
         urlString = [NSString stringWithFormat:@"http://tabs.ultimate-guitar.com/%@/%@/%@_tab.htm", artistIndex, artist, title];
+//        urlString = [NSString stringWithFormat:@"http://10.1.1.7"];
     }
     NSURL *url = [[NSURL alloc] initWithString:urlString];
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
